@@ -14,7 +14,7 @@ from models import *
 def index_get():
     result = {
         'alarm_url': '%salarm{/alarm_id}' % (request.url_root),
-        'stat4_url': '%sstat?q={}' % (request.url_root),
+        'stat_url': '%sstat?q={}' % (request.url_root),
         'control_unit_url': '%scontrol_unit{/control_unit_id}' % (request.url_root),
         'traffic_crossing_info_url': '%straffic_crossing_info{/crossing_id}' % (request.url_root),
         'traffic_direction_info_url': '%straffic_direction_info{/corssing_id}' % (request.url_root),
@@ -24,22 +24,8 @@ def index_get():
     return jsonify(result), 200, header
 
 
-@app.route('/alarm_maxid', methods=['GET'])
-def alarm_maxid_get():
-    try:
-	sql = ("select max(disposition_alarm_id) from traffic_disposition_alarm")
-	query = db.get_engine(app, bind='kakou').execute(sql)
-        maxid = query.fetchone()[0]
-	query.close()
-    except Exception as e:
-        logger.error(e)
-        raise
-    
-    return jsonify({'maxid': maxid}), 200
-
-
 @app.route('/alarm/maxid', methods=['GET'])
-def alarm_maxid2_get():
+def alarm_maxid_get():
     try:
         q = db.session.query(func.max(TrafficDispositionAlarm.disposition_alarm_id)).first()
         return jsonify({'maxid': q[0]}), 200
@@ -85,98 +71,8 @@ def alarm_get(alarm_id):
         raise
 
 
-@app.route('/kkdd/<int:kkdd_id>', methods=['GET'])
-def kkdd_get(kkdd_id):
-    try:
-	t = TrafficCrossingInfo.query.filter_by(inside_index=kkdd_id).first()
-	if t is None:
-	    return jsonify({}), 404
-	t2 = ControlUnit.query.filter_by(control_unit_id=t.control_unit_id).first()
-	item = {
-	    'control_unit_id': t.control_unit_id,
-	    'kkdd_id': t.inside_index,
-	    'kkdd_name': t.crossing_name,
-	    'city_name': t2.name
-	}
-    except Exception as e:
-        logger.exception(e)
-        raise
-    
-    return jsonify(item), 200
-
-
-@app.route('/traffic/<string:st>/<string:et>/<int:kkdd>', methods=['GET'])
-def traffic_get(st, et, kkdd):
-    try:
-        r = db.session.query(Traffic).filter(
-	    Traffic.pass_time>=st, Traffic.pass_time<et, Traffic.crossing_id>=kkdd, Traffic.crossing_id<kkdd+100).all()
-        items = []
-	for i in r:
-	    item = {}
-	    item['id'] = i.pass_id
-	    hphm = i.plate_no
-	    if i.plate_no is None or i.plate_no == '':
-	        hphm = '-'
-	    item['hphm'] = hphm
-	    item['jgsj'] = str(i.pass_time)
-	    item['kkdd'] = i.crossing_id
-	    item['imgurl'] = i.image_path
-	    items.append(item)
-    except Exception as e:
-        logger.exception(e)
-        raise
-    
-    return jsonify({'total_count': len(items), 'items': items}), 200
-
-
-@app.route('/stat/<string:st>/<string:et>/<int:kkdd>', methods=['GET'])
-def stat_get(st, et, kkdd):
-    try:
-        sql = ("select count(*) from traffic_vehicle_pass where pass_time >='{0}' and pass_time <='{1}' and crossing_id >= {2} and crossing_id < {3}".format(st, et, kkdd, kkdd+100))
-        query = db.get_engine(app, bind='kakou').execute(sql)
-        r = query.fetchone()[0]
-    except Exception as e:
-        logger.exception(e)
-        raise
-    
-    return jsonify({'count': r}), 200
-
-
-@app.route('/stat2/<string:st>/<string:et>/<int:kkdd>', methods=['GET'])
-def stat2_get(st, et, kkdd):
-    try:
-        sql = ("select count(*) from traffic_vehicle_pass where pass_time >='{0}' and pass_time <='{1}' and crossing_id = {2}".format(st, et, kkdd))
-        query = db.get_engine(app, bind='kakou').execute(sql)
-        r = query.fetchone()[0]
-    except Exception as e:
-        logger.exception(e)
-        raise
-    
-    return jsonify({'count': r}), 200
-
-
-@app.route('/stat3', methods=['GET'])
-def stat3_get():
-    try:
-        st = request.args.get('st', None)
-        et = request.args.get('et', None)
-        kkdd = request.args.get('kkdd', None)
-        fxbh = request.args.get('fxbh', None)
-        t = db.session.query(Traffic).filter(Traffic.pass_time >= st, Traffic.pass_time <= et)
-	if kkdd is not None:
-            t = t.filter(Traffic.crossing_id == kkdd)
-	if fxbh is not None:
-	    t = t.filter(Traffic.direction_index == fxbh)
-        r = t.count()
-    except Exception as e:
-        logger.exception(e)
-        raise
-    
-    return jsonify({'count': r}), 200
-
-
-@app.route('/stat4', methods=['GET'])
-def stat4_get():
+@app.route('/stat', methods=['GET'])
+def stat_get():
     try:
         st = request.args.get('st', None)
         et = request.args.get('et', None)
@@ -270,7 +166,7 @@ def traffic_crossing_info_all_get():
             items.append(item)
         return jsonify({'total_count': total, 'items': items}), 200
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         raise
 
 
@@ -296,40 +192,125 @@ def traffic_crossing_info_get(crossing_id):
         raise
 
 
-@app.route('/traffic_direction_info/<int:crossing_id>', methods=['GET'])
-def traffic_direction_info_get(crossing_id):
+@app.route('/traffic_direction_info', methods=['GET'])
+def traffic_direction_info_all_get():
+    q = request.args.get('q', None)
+    if q is None:
+        abort(400)
     try:
-        fxbh2 = {u'IN': 9, u'OT': 10, u'WE': 2, u'EW': 1, u'SN': 3, u'NS': 4}
-        fxbh = {9: u'IN', 10: u'OT', 2: u'WE', 1: u'EW', 3: u'SN', 4: u'NS'}
-        t = TrafficDirectionInfo.query.filter_by(crossing_id=crossing_id).all()
+        args = json.loads(q)
+    except Exception as e:
+        logger.error(e)
+        abort(400)
+    try:
+        limit = int(args.get('per_page', 20))
+        offset = (int(args.get('page', 1)) - 1) * limit
+        s = db.session.query(TrafficDirectionInfo)
+        if args.get('crossing_id', None) is not None:
+            s = s.filter(TrafficDirectionInfo.crossing_id == args['crossing_id'])
+        result = s.limit(limit).offset(offset).all()
+        # 总数
+        total = s.count()
+        # 结果集为空
+        if len(result) == 0:
+            return jsonify({'total_count': total, 'items': []}), 200
+
         items = []
-        for i in t:
+        for i in result:
             item = {
                 'direction_id': i.direction_id,
                 'direction_name': i.direction_name,
                 'direction_index': i.direction_index,
-                'fxbh_code': fxbh.get(i.direction_index, u'QT')
+                'crossing_id': i.crossing_id
             }
-	    items.append(item)
-        return jsonify({'total_count': len(items), 'items': items}), 200
+            items.append(item)
+        return jsonify({'total_count': total, 'items': items}), 200
+    except Exception as e:
+        logger.exception(e)
+        raise
+
+
+@app.route('/traffic_direction_info/<int:direction_id>', methods=['GET'])
+def traffic_direction_info_get(direction_id):
+    try:
+        i = TrafficDirectionInfo.query.filter_by(direction_id=direction_id).first()
+        if i is None:
+             return jsonify({}), 404
+        item = {
+            'direction_id': i.direction_id,
+            'direction_name': i.direction_name,
+            'direction_index': i.direction_index,
+            'crossing_id': i.crossing_id
+        }
+        return jsonify(item), 200
     except Exception as e:
         logger.error(e)
         raise
 
 
-@app.route('/traffic_lane_info/<int:direction_id>', methods=['GET'])
-def traffic_lane_info_get(direction_id):
+@app.route('/traffic_lane_info', methods=['GET'])
+def traffic_lane_info_all_get():
+    q = request.args.get('q', None)
+    if q is None:
+        abort(400)
     try:
-        t = TrafficLaneInfo.query.filter_by(crossing_id=direction_id).all()
+        args = json.loads(q)
+    except Exception as e:
+        logger.error(e)
+        abort(400)
+    try:
+        limit = int(args.get('per_page', 20))
+        offset = (int(args.get('page', 1)) - 1) * limit
+        s = db.session.query(TrafficLaneInfo)
+        if args.get('crossing_id', None) is not None:
+            s = s.filter(TrafficLaneInfo.crossing_id == args['crossing_id'])
+        if args.get('direction_id', None) is not None:
+            s = s.filter(TrafficLaneInfo.direction_id == args['direction_id'])
+        result = s.limit(limit).offset(offset).all()
+        # 总数
+        total = s.count()
+        # 结果集为空
+        if len(result) == 0:
+            return jsonify({'total_count': total, 'items': []}), 200
+
         items = []
-        for i in t:
+        for i in result:
             item = {
                 'lane_id': i.lane_id,
                 'lane_no': i.lane_no,
-                'crossing_id': i.crossing_id
+                'lane_name': i.lane_name,
+                'camera_ip': i.camera_ip,
+                'camera_port': i.camera_port,
+                'device_id': i.device_id,
+                'crossing_id': i.crossing_id,
+                'modify_date': i.modify_date.strftime('%Y-%m-%d %H:%M:%S'),
+                'direction_id': i.direction_id
             }
             items.append(item)
-        return jsonify({'total_count': len(items), 'items': items}), 200
+        return jsonify({'total_count': total, 'items': items}), 200
+    except Exception as e:
+        logger.exception(e)
+        raise
+
+
+@app.route('/traffic_lane_info/<int:lane_id>', methods=['GET'])
+def traffic_lane_info_get(lane_id):
+    try:
+        i = TrafficLaneInfo.query.filter_by(lane_id=lane_id).first()
+        if i is None:
+             return jsonify({}), 404
+        item = {
+            'lane_id': i.lane_id,
+            'lane_no': i.lane_no,
+            'lane_name': i.lane_name,
+            'camera_ip': i.camera_ip,
+            'camera_port': i.camera_port,
+            'device_id': i.device_id,
+            'crossing_id': i.crossing_id,
+            'modify_date': i.modify_date.strftime('%Y-%m-%d %H:%M:%S'),
+            'direction_id': i.direction_id
+        }
+        return jsonify(item), 200
     except Exception as e:
         logger.error(e)
         raise
