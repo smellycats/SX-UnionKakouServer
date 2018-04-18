@@ -68,7 +68,7 @@ class Traffic(db.Model):
 
 
 class TrafficDispositionVehicle(db.Model):
-    """过车信息"""
+    """布控车辆信息"""
     __bind_key__ = 'kakou'
     __tablename__ = 'traffic_disposition_vehicle'
     disposition_id = db.Column(db.Integer, primary_key=True)
@@ -141,7 +141,7 @@ class TrafficDispositionVehicle(db.Model):
 
 
 class TrafficCrossingInfo(db.Model):
-    """卡口地点"""
+    """卡口地点信息"""
     __bind_key__ = 'kakou'
     __tablename__ = 'traffic_crossing_info'
     crossing_id = db.Column(db.Integer, primary_key=True)
@@ -172,7 +172,7 @@ class TrafficCrossingInfo(db.Model):
 
 
 class TrafficDirectionInfo(db.Model):
-    """"方向"""
+    """"方向信息"""
     __bind_key__ = 'kakou'
     __tablename__ = 'traffic_direction_info'
     direction_id = db.Column(db.Integer, primary_key=True)
@@ -203,7 +203,7 @@ class TrafficDirectionInfo(db.Model):
 
 
 class TrafficLaneInfo(db.Model):
-    """"车道"""
+    """"车道信息"""
     __bind_key__ = 'kakou'
     __tablename__ = 'traffic_lane_info'
     lane_id = db.Column(db.Integer, primary_key=True)
@@ -239,7 +239,7 @@ class TrafficLaneInfo(db.Model):
 
 
 class ControlUnit(db.Model):
-    """卡口地点"""
+    """控制单元"""
     __bind_key__ = 'kakou'
     __tablename__ = 'control_unit'
     control_unit_id = db.Column(db.Integer, primary_key=True)
@@ -258,7 +258,7 @@ class ControlUnit(db.Model):
 
 
 class TrafficDispositionAlarm(db.Model):
-    """卡口地点"""
+    """布控报警信息配置"""
     __bind_key__ = 'kakou'
     __tablename__ = 'traffic_disposition_alarm'
     disposition_alarm_id = db.Column(db.Integer, primary_key=True)
@@ -293,7 +293,7 @@ class TrafficDispositionAlarm(db.Model):
 
 
 class TrafficDispositionContact(db.Model):
-    """卡口地点"""
+    """布控联系人配置"""
     __bind_key__ = 'kakou'
     __tablename__ = 'traffic_disposition_contact'
     contact_id = db.Column(db.Integer, primary_key=True)
