@@ -99,14 +99,18 @@ class TrafficDispositionVehicle(db.Model):
     check_result = db.Column(db.String(10))
     status = db.Column(db.String(10))
     del_flag = db.Column(db.Integer)
-    
+    res_num1 = db.Column(db.Integer)
+    res_num2 = db.Column(db.Integer)
+    res_str1 = db.Column(db.String(64))
+    res_str2 = db.Column(db.String(64))
 
     def __init__(self, disposition_id, disposition_index, disposition_type, control_unit_id,
                  disposition_nature, disposition_reason, priority, plate_no, plate_color,
 		 vehicle_color, vehicle_type, plate_type, disposition_start_time,
 		 disposition_stop_time, contact_tel, alarm_plan, region_code, identify,
 		 disposition_remark, user_id, create_time, modify_time, check_user_id,
-		 check_time, check_remark, check_result, status, del_flag=0):
+		 check_time, check_remark, check_result, status, del_flag=0, res_num1=0,
+                 res_num2=0, res_str1='', res_str2=''):
         self.disposition_id = disposition_id
         self.disposition_index = disposition_index
         self.disposition_type = disposition_type
@@ -117,24 +121,28 @@ class TrafficDispositionVehicle(db.Model):
         self.plate_no = plate_no
         self.plate_color = plate_color
         self.vehicle_color = vehicle_color
-	self.vehicle_type = vehicle_type
-	self.plate_type = plate_type
-	self.disposition_start_time = disposition_start_time
-	self.disposition_stop_time = disposition_stop_time
-	self.contact_tel = contact_tel
-	self.alarm_plan = alarm_plan
-	self.region_code = region_code
-	self.identify = identify
-	self.disposition_remark = disposition_remark
-	self.user_id = user_id
-	self.create_time = create_time
-	self.modify_time = modify_time
-	self.check_user_id = check_user_id
-	self.check_time = check_time
-	self.check_remark = check_remark
-	self.check_result = check_result
-	self.status = status
-	self.del_flag = del_flag
+        self.vehicle_type = vehicle_type
+        self.plate_type = plate_type
+        self.disposition_start_time = disposition_start_time
+        self.disposition_stop_time = disposition_stop_time
+        self.contact_tel = contact_tel
+        self.alarm_plan = alarm_plan
+        self.region_code = region_code
+        self.identify = identify
+        self.disposition_remark = disposition_remark
+        self.user_id = user_id
+        self.create_time = create_time
+        self.modify_time = modify_time
+        self.check_user_id = check_user_id
+        self.check_time = check_time
+        self.check_remark = check_remark
+        self.check_result = check_result
+        self.status = status
+        self.del_flag = del_flag
+        self.res_num1 = res_num1
+        self.res_num2 = res_num2
+        self.res_str1 = res_str1
+        self.res_str2 = res_str2
 
     def __repr__(self):
         return '<TrafficDispositionVehicle %r>' % self.disposition_id
@@ -319,3 +327,37 @@ class TrafficDispositionContact(db.Model):
 
     def __repr__(self):
         return '<TrafficDispositionContact %r>' % self.contact_id
+
+
+class TrafficSysdict(db.Model):
+    """系统配置字典"""
+    __bind_key__ = 'kakou'
+    __tablename__ = 'traffic_sysdict'
+    sysdict_id = db.Column(db.Integer, primary_key=True)
+    sysdict_type = db.Column(db.Integer)
+    sysdict_code = db.Column(db.String(20))
+    sysdict_name = db.Column(db.String(200))
+    sysdict_memo = db.Column(db.String(255))
+    flag = db.Column(db.Integer)
+    show_order = db.Column(db.Integer)
+    enable = db.Column(db.Integer)
+    change_code = db.Column(db.String(10))
+
+    def __init__(self, sysdict_id, sysdict_type, sysdict_code, sysdict_name,
+                 sysdict_memo, flag, show_order, enable, change_code):
+        self.sysdict_id = sysdict_id
+        self.sysdict_type = sysdict_type
+        self.sysdict_code = sysdict_code
+        self.sysdict_name = sysdict_name
+        self.sysdict_memo = sysdict_memo
+        self.flag = flag
+        self.show_order = show_order
+	self.enable = enable
+        self.change_code = change_code
+
+    def __repr__(self):
+        return '<TrafficSysdict %r>' % self.sysdict_id
+
+
+
+
