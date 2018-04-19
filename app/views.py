@@ -63,7 +63,10 @@ def alarm_get(alarm_id):
             'plate_color': t.plate_color,
             'mobiles': list(set(mobiles)),
             'start_time': str(t2.disposition_start_time),
-            'stop_time': str(t2.disposition_stop_time)
+            'stop_time': str(t2.disposition_stop_time),
+            'disposition_reason': t2.disposition_reason,
+            'res_str1': t2.res_str1,
+            'res_str2': t2.res_str2
         }
         return jsonify(item), 200
     except Exception as e:
@@ -315,3 +318,70 @@ def traffic_lane_info_get(lane_id):
         logger.error(e)
         raise
 
+
+@app.route('/traffic_sysdict', methods=['GET'])
+def traffic_sysdict_all_get():
+    q = request.args.get('q', None)
+    if q is None:
+        abort(400)
+    try:
+        args = json.loads(q)
+    except Exception as e:
+        logger.error(e)
+        abort(400)
+    try:
+        limit = int(args.get('per_page', 20))
+        offset = (int(args.get('page', 1)) - 1) * limit
+        s = db.session.query(TrafficSysdict)
+        if args.get('sysdict_type', None) is not None:
+            s = s.filter(TrafficSysdict.sysdict_type == args['sysdict_type'])
+        if args.get('sysdict_code', None) is not None:
+            s = s.filter(TrafficSysdict.sysdict_code == args['sysdict_code'])
+        result = s.limit(limit).offset(offset).all()
+        # 总数
+        total = s.count()
+        # 结果集为空
+        if len(result) == 0:
+            return jsonify({'total_count': total, 'items': []}), 200
+
+        items = []
+        for i in result:
+            item = {
+                'sysdict_id': i.sysdict_id,
+                'sysdict_type': i.sysdict_type,
+                'sysdict_code': i.sysdict_code,
+                'sysdict_name': i.sysdict_name,
+                'sysdict_memo': i.sysdict_memo,
+                'flag': i.flag,
+                'show_order': i.show_order,
+                'enable': i.enable,
+                'change_code': i.change_code
+            }
+            items.append(item)
+        return jsonify({'total_count': total, 'items': items}), 200
+    except Exception as e:
+        logger.exception(e)
+        raise
+
+
+@app.route('/traffic_sysdict/<int:sysdict_id>', methods=['GET'])
+def traffic_sysdict_get(sysdict_id):
+    try:
+        i = TrafficSysdict.query.filter_by(sysdict_id=sysdict_id).first()
+        if i is None:
+             return jsonify({}), 404
+        item = {
+            'sysdict_id': i.sysdict_id,
+            'sysdict_type': i.sysdict_type,
+            'sysdict_code': i.sysdict_code,
+            'sysdict_name': i.sysdict_name,
+            'sysdict_memo': i.sysdict_memo,
+            'flag': i.flag,
+            'show_order': i.show_order,
+            'enable': i.enable,
+            'change_code': i.change_code
+        }
+        return jsonify(item), 200
+    except Exception as e:
+        logger.error(e)
+        raise
