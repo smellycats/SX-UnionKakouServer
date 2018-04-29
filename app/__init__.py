@@ -9,8 +9,8 @@ from flask import Flask, request, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
 # from flask.ext.cache import Cache
 
-from config import Production
-from my_logger import debug_logging, online_logging, access_logging
+from .config import Production
+from .my_logger import debug_logging, online_logging, access_logging
 
 
 # create a flask application - this ``app`` object will be used to handle
@@ -22,8 +22,8 @@ db = SQLAlchemy(app)
 
 #auth = HTTPBasicAuth()
 
-debug_logging(u'logs/error.log')
-access_logging(u'logs/access.log')
+debug_logging('/var/logs/error.log')
+access_logging('/var/logs/access.log')
 
 logger = logging.getLogger('root')
 access_logger = logging.getLogger('access')
