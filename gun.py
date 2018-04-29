@@ -1,7 +1,7 @@
 import os
 
 bind='0.0.0.0:8083'
-workers=2
+workers=4
 #backlog=2048
 worker_class="gevent" #sync, gevent,meinheld
 #debug=True
