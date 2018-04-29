@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import json
 
 import arrow
@@ -7,7 +7,6 @@ from sqlalchemy import func
 
 from . import db, app, logger, access_logger
 from .models import *
-#import helper
 
 
 @app.route('/')
