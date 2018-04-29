@@ -6,7 +6,7 @@ from flask import g, request, make_response, jsonify, abort
 from sqlalchemy import func
 
 from . import db, app, logger, access_logger
-from models import *
+from .models import *
 #import helper
 
 
@@ -94,10 +94,25 @@ def stat_get():
 
 @app.route('/control_unit', methods=['GET'])
 def control_unit_all_get():
+    q = request.args.get('q', None)
+    if q is None:
+        abort(400)
     try:
-        t = ControlUnit.query.filter_by().all()
+        args = json.loads(q)
+    except Exception as e:
+        logger.error(e)
+        abort(400)
+    try:
+        limit = int(args.get('per_page', 20))
+        offset = (int(args.get('page', 1)) - 1) * limit
+        s = db.session.query(ControlUnit)
+        if args.get('parent_id', None) is not None:
+            s = s.filter(ControlUnit.parent_id == args['parent_id'])
+        result = s.limit(limit).offset(offset).all()
+        # 总数
+        total = s.count()
         items = []
-        for i in t:
+        for i in result:
             item = {
                 'id': i.control_unit_id,
                 'name': i.name,
@@ -105,7 +120,7 @@ def control_unit_all_get():
                 'unit_level': i.unit_level
             }
             items.append(item)
-        return jsonify({'total_count': len(items), 'items': items}), 200
+        return jsonify({'total_count': total, 'items': items}), 200
     except Exception as e:
         logger.error(e)
         raise
