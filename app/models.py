@@ -165,14 +165,14 @@ class TrafficCrossingInfo(db.Model):
 
     def __init__(self, crossing_index, control_unit_id, crossing_name, driveway_num,
 		 cross_type,speed_limit, logo_speed_limit, direction_num, inside_index):
-	self.crossing_index = crossing_index
+        self.crossing_index = crossing_index
         self.control_unit_id = control_unit_id
         self.corssing_name = crossing_name
-	self.driveway_num = driveway_num
-	self.cross_type = cross_type
-	self.speed_limit = speed_limit
-	self.logo_speed_limit = logo_speed_limit
-	self.direction_num = direction_num
+        self.driveway_num = driveway_num
+        self.cross_type = cross_type
+        self.speed_limit = speed_limit
+        self.logo_speed_limit = logo_speed_limit
+        self.direction_num = direction_num
         self.inside_index = inside_index
 
     def __repr__(self):
@@ -196,14 +196,14 @@ class TrafficDirectionInfo(db.Model):
 
     def __init__(self, direction_index, direction_name, crossing_id, del_flag,
 		 res_num1, res_num2, res_str1, res_str2, flow_threshold):
-	self.direction_index = direction_index
+        self.direction_index = direction_index
         self.direction_name = direction_name
         self.crossing_id = crossing_id
-	self.del_flag = del_flag
-	self.res_num1 = res_num1
-	self.res_num2 = res_num2
-	self.res_str1 = res_str1
-	self.res_str2 = res_str2
+        self.del_flag = del_flag
+        self.res_num1 = res_num1
+        self.res_num2 = res_num2
+        self.res_str1 = res_str1
+        self.res_str2 = res_str2
         self.flow_threshold = flow_threshold
 
     def __repr__(self):
@@ -228,19 +228,19 @@ class TrafficLaneInfo(db.Model):
     
 
     def __init__(self, lane_id, lane_no, lane_name, camera_ip, camera_port,
-		 device_id, channel_no, enable, crossing_id, modify_date,
-		 direction_id):
-	self.lane_id = lane_id
+                 device_id, channel_no, enable, crossing_id, modify_date,
+                 direction_id):
+        self.lane_id = lane_id
         self.lane_no = lane_no
         self.lane_name = lane_name
-	self.camera_ip = camera_ip
-	self.camera_port = camera_port
-	self.device_id = device_id
-	self.channel_no = channel_no
-	self.enable = enable
+        self.camera_ip = camera_ip
+        self.camera_port = camera_port
+        self.device_id = device_id
+        self.channel_no = channel_no
+        self.enable = enable
         self.crossing_id = crossing_id
-	self.modify_date = modify_date
-	self.direction_id = direction_id
+        self.modify_date = modify_date
+        self.direction_id = direction_id
 
     def __repr__(self):
         return '<TrafficLaneInfo %r>' % self.lane_id
@@ -258,8 +258,8 @@ class ControlUnit(db.Model):
     def __init__(self, control_unit_id, name, parent_id, unit_level):
         self.control_unit_id = control_unit_id
         self.name = name
-	self.parent_id = parent_id
-	self.unit_level = unit_level
+        self.parent_id = parent_id
+        self.unit_level = unit_level
 
     def __repr__(self):
         return '<ControlUnit %r>' % self.control_unit_id
@@ -323,7 +323,7 @@ class TrafficDispositionContact(db.Model):
         self.contact_email = contact_email
         self.modify_date = modify_date
         self.del_flag = del_flag
-	self.sms_contact_phone = sms_contact_phone
+        self.sms_contact_phone = sms_contact_phone
 
     def __repr__(self):
         return '<TrafficDispositionContact %r>' % self.contact_id
@@ -352,7 +352,7 @@ class TrafficSysdict(db.Model):
         self.sysdict_memo = sysdict_memo
         self.flag = flag
         self.show_order = show_order
-	self.enable = enable
+        self.enable = enable
         self.change_code = change_code
 
     def __repr__(self):
